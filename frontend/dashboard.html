@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - CodeCollab</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+
+        :root {
+            --primary-color: #6a11cb;
+            --secondary-color: #2575fc;
+            --background-color: #121212;
+            --surface-color: #1e1e1e;
+            --surface-light: #2a2a2a;
+            --text-color: #e0e0e0;
+            --text-muted-color: #a0a0a0;
+            --border-color: #2c2c2c;
+            --error-color: #f44336;
+            --icon-js-color: #f7df1e;
+            --icon-py-color: #3776ab;
+            --icon-cpp-color: #00599c;
+            --icon-c-color: #a8b9cc;
+            --icon-default-color: #7d848c;
+        }
+
+        /* --- Base Styles --- */
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        a { text-decoration: none; color: inherit; }
+
+        /* --- Header --- */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .header-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* --- Button Styles --- */
+        .btn {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            font-weight: 500;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn:hover { background-color: #1a5ac1; }
+        .btn:active { transform: scale(0.98); }
+        
+        .btn-secondary {
+            background-color: var(--surface-light);
+            color: var(--text-color);
+        }
+        .btn-secondary:hover { background-color: #3a3a3a; }
+        
+        .btn-icon-only {
+            padding: 8px;
+            font-size: 1.2rem;
+        }
+        .btn-danger { background-color: var(--error-color); }
+        .btn-danger:hover { background-color: #d32f2f; }
+        
+        /* --- SVG Icons --- */
+        .btn-icon {
+            width: 20px;
+            height: 20px;
+        }
+        .file-icon {
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+        }
+
+        /* --- NEW: File Explorer Styles --- */
+        #file-explorer {
+            background-color: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 24px;
+            user-select: none;
+        }
+        .file-explorer ul { list-style: none; padding: 0; }
+        
+        .folder-item {
+            font-weight: 600;
+            margin-top: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            padding: 12px;
+            border-radius: 6px;
+            transition: background-color 0.2s ease;
+        }
+        .folder-item:hover { background-color: var(--surface-light); }
+        
+        .folder-icon {
+            transition: transform 0.2s ease-in-out;
+            width: 20px;
+            height: 20px;
+            color: var(--secondary-color);
+        }
+        .folder-item.open .folder-icon { transform: rotate(90deg); }
+
+        .file-list {
+            margin-left: 20px;
+            padding-left: 20px;
+            border-left: 1px solid var(--border-color);
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+            padding-top: 15px;
+        }
+        .folder-item.open + .file-list {
+            display: grid;
+        }
+        .folder-item:not(.open) + .file-list {
+            display: none;
+        }
+
+        .file-item {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding: 15px;
+            cursor: pointer;
+            border-radius: 8px;
+            background-color: var(--surface-light);
+            border: 1px solid var(--border-color);
+            transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .file-item:hover {
+            background-color: #3a3a3a;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        .file-item-name {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 500;
+            font-size: 1rem;
+            /* For text overflow */
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+        
+        .file-item-name span {
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        .file-item-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+
+        .file-item .action-btn {
+            background-color: transparent;
+            color: var(--text-muted-color);
+            border: none;
+            border-radius: 4px;
+            font-size: 1.1rem;
+            padding: 4px;
+            cursor: pointer;
+            transition: color 0.2s, background-color 0.2s;
+        }
+        .file-item .action-btn:hover {
+            color: var(--text-color);
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        .file-item .action-btn.delete:hover {
+            color: var(--error-color);
+            background-color: rgba(244, 67, 54, 0.2);
+        }
+        
+        .empty-state {
+            color: var(--text-muted-color);
+            text-align: center;
+            padding: 40px;
+        }
+
+        /* --- Modal Styles (Unchanged) --- */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(5px);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 1000; opacity: 0; pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .modal-overlay.visible { opacity: 1; pointer-events: all; }
+        .modal {
+            background: var(--surface-color); border-radius: 8px;
+            padding: 24px; width: 90%; max-width: 400px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            transform: scale(0.95); transition: transform 0.3s ease;
+        }
+        .modal-overlay.visible .modal { transform: scale(1); }
+        .modal h3 { margin-top: 0; margin-bottom: 20px; }
+        .modal-content label {
+            font-size: 0.9rem; color: var(--text-muted-color);
+            margin-bottom: 8px; display: block;
+        }
+        .modal-content input {
+            width: 100%; padding: 12px; border: 1px solid var(--border-color);
+            background: var(--background-color); color: var(--text-color);
+            border-radius: 6px; font-family: 'Poppins', sans-serif;
+            font-size: 1rem; margin-bottom: 20px; box-sizing: border-box;
+        }
+        .modal-content input:focus {
+            outline: none; border-color: var(--secondary-color);
+            box-shadow: 0 0 0 3px rgba(37, 117, 252, 0.3);
+        }
+        .modal-buttons { display: flex; justify-content: flex-end; gap: 10px; }
+
+        /* --- Custom Context Menu (Unchanged) --- */
+        #context-menu {
+            position: fixed; z-index: 1001; background: #2f2f2f;
+            border-radius: 6px; box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            padding: 8px; display: none;
+        }
+        #context-menu .context-menu-item {
+            padding: 10px 16px; cursor: pointer; border-radius: 4px;
+            display: flex; align-items: center; gap: 10px; font-size: 0.9rem;
+        }
+        #context-menu .context-menu-item:hover { background-color: var(--secondary-color); color: white; }
+        #context-menu .context-menu-item.delete { color: var(--error-color); }
+        #context-menu .context-menu-item.delete:hover { background-color: var(--error-color); color: white; }
+    </style>
+</head>
+<body>
+
+    <svg width="0" height="0" style="position:absolute">
+      <defs>
+        <symbol id="icon-folder" viewBox="0 0 20 20">
+          <path fill="currentColor" d="M10 4L12 6H18V16H2V4H10Z" />
+        </symbol>
+        <symbol id="icon-arrow-right" viewBox="0 0 20 20">
+            <path fill="currentColor" d="M7 14L12 10L7 6V14Z" />
+        </symbol>
+        <symbol id="icon-arrow-down" viewBox="0 0 20 20">
+            <path fill="currentColor" d="M6 7L10 12L14 7H6Z" />
+        </symbol>
+        <symbol id="icon-file" viewBox="0 0 20 20">
+          <path fill="currentColor" d="M6 2H14L18 6V18H2V2H6ZM8 4V8H12V4H8Z" />
+        </symbol>
+        <symbol id="icon-js" viewBox="0 0 1024 1024">
+            <path fill="currentColor" d="M192 192h640v640h-640v-640z m512 512v-128h-128v-128h128v-128h-128v-64h128v-64h64v384h-64z m-128-128v-128h-128v128h128z m-128-128v-128h-128v128h128z"/>
+        </symbol>
+        <symbol id="icon-py" viewBox="0 0 512 512">
+            <path fill="currentColor" d="M..."/> <text x="50" y="450" font-size="500" font-weight="bold" fill="currentColor">Py</text>
+        </symbol>
+        <symbol id="icon-cpp" viewBox="0 0 512 512">
+            <text x="20" y="450" font-size="400" font-weight="bold" fill="currentColor">C++</text>
+        </symbol>
+         <symbol id="icon-c" viewBox="0 0 512 512">
+            <text x="120" y="450" font-size="500" font-weight="bold" fill="currentColor">C</text>
+        </symbol>
+        <symbol id="icon-edit" viewBox="0 0 20 20">
+            <path fill="currentColor" d="M13.89 3.39l2.71 2.72c.46.46.42 1.21.03 1.64l-8.4 8.4c-.09.09-.2.16-.31.21l-4.22 1.05c-1.03.26-1.92-.62-1.66-1.66l1.05-4.21c.05-.12.12-.22.21-.31l8.4-8.4c.43-.39 1.18-.43 1.64.03zm-2.09 2.09l-8.4 8.4v1.41l2.82.7l8.4-8.4l-2.82-2.81z"/>
+        </symbol>
+        <symbol id="icon-trash" viewBox="0 0 20 20">
+            <path fill="currentColor" d="M6 2l2-2h4l2 2h4v2H2V2h4zM3 6h14l-1 14H4L3 6z"/>
+        </symbol>
+        <symbol id="icon-editor" viewBox="0 0 20 20">
+            <path fill="currentColor" d="M4 3h12a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zm1 3v10h10V6H5zm2 2h6v1H7V8zm0 3h6v1H7v-1zm0 3h4v1H7v-1z"/>
+        </symbol>
+        <symbol id="icon-folder-plus" viewBox="0 0 20 20">
+            <path fill="currentColor" d="M13 6H10V3H8v3H5v2h3v3h2V8h3V6zM0 2C0 .9.9 0 2 0h6l2 2h8c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H2c-1.1 0-2-.9-2-2V2z"/>
+        </symbol>
+      </defs>
+    </svg>
+
+    <div class="container">
+        <header class="header">
+            <a href="/" class="logo">CodeCollab</a>
+            <div class="header-buttons">
+                <a href="/editor" class="btn btn-secondary">
+                    <svg class="btn-icon"><use href="#icon-editor"/></svg>
+                    Go to Editor
+                </a>
+                <button id="create-folder-btn" class="btn">
+                    <svg class="btn-icon"><use href="#icon-folder-plus"/></svg>
+                    Create Folder
+                </button>
+            </div>
+        </header>
+
+        <div id="file-explorer" class="file-explorer">
+            <div class="empty-state">Loading your files...</div>
+        </div>
+    </div>
+    
+    <div id="folder-modal" class="modal-overlay">
+        <div class="modal">
+            <h3>Create New Folder</h3>
+            <div class="modal-content">
+                <label for="folder-name-input">Folder Name</label>
+                <input type="text" id="folder-name-input" placeholder="My New Folder">
+            </div>
+            <div class="modal-buttons">
+                <button id="cancel-folder-btn" class="btn btn-secondary">Cancel</button>
+                <button id="confirm-folder-btn" class="btn">Create</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="rename-modal" class="modal-overlay">
+        <div class="modal">
+            <h3>Rename File</h3>
+            <div class="modal-content">
+                <label for="rename-name-input">New Name</label>
+                <input type="text" id="rename-name-input" placeholder="My File Name">
+            </div>
+            <div class="modal-buttons">
+                <button id="cancel-rename-btn" class="btn btn-secondary">Cancel</button>
+                <button id="confirm-rename-btn" class="btn">Rename</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="context-menu">
+        <div class="context-menu-item" id="context-rename">
+            <svg class="btn-icon"><use href="#icon-edit"/></svg> Rename
+        </div>
+        <div class="context-menu-item delete" id="context-delete">
+            <svg class="btn-icon"><use href="#icon-trash"/></svg> Delete
+        </div>
+    </div>
+    
+    <script src="js/dashboard.js"></script>
+</body>
+</html>
