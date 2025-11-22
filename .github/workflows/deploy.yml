@@ -2,7 +2,7 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ main ] # Trigger this pipeline when you push to the 'main' branch
+    branches: [ main ]
 
 jobs:
   build-and-test:
@@ -14,17 +14,22 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18' # Use the node version your app needs
+          node-version: '18'
 
+      # CHANGE: We added this to enter your backend folder
       - name: Install Dependencies
+        working-directory: ./backend
         run: npm install
 
-      - name: Run Tests
-        run: npm test # This runs your "exit 0" script from Phase 1
+      # CHANGE: We added this to run the test inside the backend folder
+      - name: Run Dummy Test
+        working-directory: ./backend
+        run: npm test
+
   deploy:
-    needs: build-and-test # Wait for tests to pass!
+    needs: build-and-test
     runs-on: ubuntu-latest
     steps:
       - name: Trigger Render Deployment
-        # We use curl to simply hit the secret URL we saved earlier
+        # This sends the signal to Render if tests pass
         run: curl "${{ secrets.RENDER_DEPLOY_HOOK }}"
