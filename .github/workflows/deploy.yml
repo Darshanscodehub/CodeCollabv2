@@ -5,8 +5,6 @@ on:
     branches: [ main ] # Trigger this pipeline when you push to the 'main' branch
 
 jobs:
-  # JOB 1: The "CI" part (Continuous Integration)
-  # This job installs your code and tests it to make sure it's not broken.
   build-and-test:
     runs-on: ubuntu-latest
     steps:
@@ -23,9 +21,6 @@ jobs:
 
       - name: Run Tests
         run: npm test # This runs your "exit 0" script from Phase 1
-
-  # JOB 2: The "CD" part (Continuous Deployment)
-  # This job only runs if "build-and-test" passes. It tells Render to update.
   deploy:
     needs: build-and-test # Wait for tests to pass!
     runs-on: ubuntu-latest
